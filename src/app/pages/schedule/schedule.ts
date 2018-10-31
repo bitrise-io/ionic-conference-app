@@ -1,6 +1,6 @@
-import { Component, ViewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertController, List, LoadingController, ModalController, ToastController } from '@ionic/angular';
+import { AlertController, IonList, IonRouterOutlet, LoadingController, ModalController, ToastController, Config } from '@ionic/angular';
 
 import { ScheduleFilterPage } from '../schedule-filter/schedule-filter';
 import { ConferenceData } from '../../providers/conference-data';
@@ -10,12 +10,12 @@ import { UserData } from '../../providers/user-data';
   selector: 'page-schedule',
   templateUrl: 'schedule.html',
   styleUrls: ['./schedule.scss'],
-  encapsulation: ViewEncapsulation.None
 })
-export class SchedulePage {
+export class SchedulePage implements OnInit {
   // Gets a reference to the list element
-  @ViewChild('scheduleList') scheduleList: List;
+  @ViewChild('scheduleList', { static: true }) scheduleList: IonList;
 
+  ios: boolean;
   dayIndex = 0;
   queryText = '';
   segment = 'all';
@@ -23,6 +23,7 @@ export class SchedulePage {
   shownSessions: any = [];
   groups: any = [];
   confDate: string;
+  showSearchbar: boolean;
 
   constructor(
     public alertCtrl: AlertController,
@@ -30,13 +31,16 @@ export class SchedulePage {
     public loadingCtrl: LoadingController,
     public modalCtrl: ModalController,
     public router: Router,
+    public routerOutlet: IonRouterOutlet,
     public toastCtrl: ToastController,
-    public user: UserData
+    public user: UserData,
+    public config: Config
   ) { }
 
-  ionViewWillEnter() {
-    // this.app.setTitle('Schedule');
+  ngOnInit() {
     this.updateSchedule();
+
+    this.ios = this.config.get('mode') === 'ios';
   }
 
   updateSchedule() {
@@ -54,6 +58,8 @@ export class SchedulePage {
   async presentFilter() {
     const modal = await this.modalCtrl.create({
       component: ScheduleFilterPage,
+      swipeToClose: true,
+      presentingElement: this.routerOutlet.nativeEl,
       componentProps: { excludedTracks: this.excludeTracks }
     });
     await modal.present();
@@ -65,34 +71,29 @@ export class SchedulePage {
     }
   }
 
-  goToSessionDetail(sessionData: any) {
-    // go to the session detail page
-    // and pass in the session data
-    this.router.navigateByUrl(`app/tabs/(schedule:session/${sessionData.id})`);
-  }
-
   async addFavorite(slidingItem: HTMLIonItemSlidingElement, sessionData: any) {
     if (this.user.hasFavorite(sessionData.name)) {
-      // woops, they already favorited it! What shall we do!?
-      // prompt them to remove it
+      // Prompt to remove favorite
       this.removeFavorite(slidingItem, sessionData, 'Favorite already added');
     } else {
-      // remember this session as a user favorite
+      // Add as a favorite
       this.user.addFavorite(sessionData.name);
 
-      // create an alert instance
-      const alert = await this.alertCtrl.create({
-        header: 'Favorite Added',
+      // Close the open item
+      slidingItem.close();
+
+      // Create a toast
+      const toast = await this.toastCtrl.create({
+        header: `${sessionData.name} was successfully added as a favorite.`,
+        duration: 3000,
         buttons: [{
-          text: 'OK',
-          handler: () => {
-            // close the sliding item
-            slidingItem.close();
-          }
+          text: 'Close',
+          role: 'cancel'
         }]
       });
-      // now present the alert on top of all other content
-      await alert.present();
+
+      // Present the toast at the bottom of the page
+      await toast.present();
     }
 
   }
@@ -127,11 +128,6 @@ export class SchedulePage {
     await alert.present();
   }
 
-  toggleList(fabButton: HTMLIonFabButtonElement, fabList: HTMLIonFabListElement) {
-    fabButton.activated = !fabButton.activated;
-    fabList.activated = !fabList.activated;
-  }
-
   async openSocial(network: string, fab: HTMLIonFabElement) {
     const loading = await this.loadingCtrl.create({
       message: `Posting to ${network}`,
@@ -141,24 +137,4 @@ export class SchedulePage {
     await loading.onWillDismiss();
     fab.close();
   }
-
-  /*doRefresh(refresher: Refresher) {
-    this.confData.getTimeline(this.dayIndex, this.queryText, this.excludeTracks, this.segment).subscribe((data: any) => {
-      this.shownSessions = data.shownSessions;
-      this.groups = data.groups;
-
-      // simulate a network request that would take longer
-      // than just pulling from out local json file
-      setTimeout(() => {
-        refresher.complete();
-
-        const toast = this.toastCtrl.create({
-          message: 'Sessions have been updated.',
-          duration: 3000
-        });
-        toast.present();
-      }, 1000);
-    });
-  }
-  */
 }

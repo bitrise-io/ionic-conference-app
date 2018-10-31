@@ -12,24 +12,15 @@
   <meta name="theme-color" content="#387ef5">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
   <base href="/">
 
   <link rel="icon" type="image/x-icon" href="assets/img/appicon.png">
-  <link rel="manifest" href="assets/manifest.json">
 
   <link rel="apple-touch-icon" href="assets/img/appicon.png">
 
-  <script>
-    /*
-     * if ('serviceWorker' in navigator) {
-     *   navigator.serviceWorker.register('service-worker.js')
-     *     .then(() => console.log('service worker installed'))
-     *     .catch(err => console.log('Error', err));
-     * }
-     */
-  </script>
+  <link rel="manifest" href="manifest.json">
 </head>
 
 <body>
@@ -38,8 +29,9 @@
 
   <!-- Replace the API key with your own, see:
     https://developers.google.com/maps/documentation/javascript/get-api-key -->
-  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8pf6ZdFQj5qw7rc_HSGrhUwQKfIe9ICw"></script>
+  <!-- <script async="" defer="" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB8pf6ZdFQj5qw7rc_HSGrhUwQKfIe9ICw"></script> -->
 
+  <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 
 </html>

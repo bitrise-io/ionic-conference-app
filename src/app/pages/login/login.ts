@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component } from '@angular/core';
 import { NgForm } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -12,7 +12,6 @@ import { UserOptions } from '../../interfaces/user-options';
   selector: 'page-login',
   templateUrl: 'login.html',
   styleUrls: ['./login.scss'],
-  encapsulation: ViewEncapsulation.None
 })
 export class LoginPage {
   login: UserOptions = { username: '', password: '' };
@@ -28,7 +27,7 @@ export class LoginPage {
 
     if (form.valid) {
       this.userData.login(this.login.username);
-      this.router.navigateByUrl('/app/tabs/(schedule:schedule)');
+      this.router.navigateByUrl('/app/tabs/schedule');
     }
   }
 

@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { PopoverController } from '@ionic/angular';
 
@@ -8,10 +8,14 @@ import { PopoverPage } from '../about-popover/about-popover';
   selector: 'page-about',
   templateUrl: 'about.html',
   styleUrls: ['./about.scss'],
-  encapsulation: ViewEncapsulation.None
 })
 export class AboutPage {
+  location = 'madison';
   conferenceDate = '2047-05-17';
+
+  selectOptions = {
+    header: 'Select a Location'
+  };
 
   constructor(public popoverCtrl: PopoverController) { }
 

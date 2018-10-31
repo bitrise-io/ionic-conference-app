@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { AlertController } from '@ionic/angular';
@@ -10,7 +10,6 @@ import { UserData } from '../../providers/user-data';
   selector: 'page-account',
   templateUrl: 'account.html',
   styleUrls: ['./account.scss'],
-  encapsulation: ViewEncapsulation.None
 })
 export class AccountPage implements AfterViewInit {
   username: string;

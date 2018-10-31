@@ -1,8 +1,12 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { SwUpdate } from '@angular/service-worker';
+
+import { MenuController, Platform, ToastController } from '@ionic/angular';
+
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
-import { Events, MenuController, Platform } from '@ionic/angular';
+
 import { Storage } from '@ionic/storage';
 
 import { UserData } from './providers/user-data';
@@ -17,43 +21,65 @@ export class AppComponent implements OnInit {
   appPages = [
     {
       title: 'Schedule',
-      url: '/app/tabs/(schedule:schedule)',
+      url: '/app/tabs/schedule',
       icon: 'calendar'
     },
     {
       title: 'Speakers',
-      url: '/app/tabs/(speakers:speakers)',
-      icon: 'contacts'
+      url: '/app/tabs/speakers',
+      icon: 'people'
     },
     {
       title: 'Map',
-      url: '/app/tabs/(map:map)',
+      url: '/app/tabs/map',
       icon: 'map'
     },
     {
       title: 'About',
-      url: '/app/tabs/(about:about)',
+      url: '/app/tabs/about',
       icon: 'information-circle'
     }
   ];
   loggedIn = false;
+  dark = false;
 
   constructor(
-    private events: Events,
     private menu: MenuController,
     private platform: Platform,
     private router: Router,
     private splashScreen: SplashScreen,
     private statusBar: StatusBar,
     private storage: Storage,
-    private userData: UserData
+    private userData: UserData,
+    private swUpdate: SwUpdate,
+    private toastCtrl: ToastController,
   ) {
     this.initializeApp();
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.checkLoginStatus();
     this.listenForLoginEvents();
+
+    this.swUpdate.available.subscribe(async res => {
+      const toast = await this.toastCtrl.create({
+        message: 'Update available!',
+        position: 'bottom',
+        buttons: [
+          {
+            role: 'cancel',
+            text: 'Reload'
+          }
+        ]
+      });
+
+      await toast.present();
+
+      toast
+        .onDidDismiss()
+        .then(() => this.swUpdate.activateUpdate())
+        .then(() => window.location.reload());
+    });
   }
 
   initializeApp() {
@@ -76,48 +102,28 @@ export class AppComponent implements OnInit {
   }
 
   listenForLoginEvents() {
-    this.events.subscribe('user:login', () => {
+    window.addEventListener('user:login', () => {
       this.updateLoggedInStatus(true);
     });
 
-    this.events.subscribe('user:signup', () => {
+    window.addEventListener('user:signup', () => {
       this.updateLoggedInStatus(true);
     });
 
-    this.events.subscribe('user:logout', () => {
+    window.addEventListener('user:logout', () => {
       this.updateLoggedInStatus(false);
     });
   }
 
-  selectTab(index: number, fallbackUrl: string) {
-    const tabs = document.querySelector('ion-tabs');
-    let promise: Promise<any> = null;
-    if (tabs) {
-      promise = tabs.componentOnReady();
-      promise.then(() => {
-        return tabs.select(index);
-      });
-    } else {
-      promise = this.navigate(fallbackUrl);
-    }
-    return promise.then(() => {
-      return this.menu.toggle();
-    });
-  }
-
-  navigate(url: string) {
-    return this.router.navigateByUrl(url);
-  }
-
   logout() {
     this.userData.logout().then(() => {
-      return this.navigate('/app/tabs/(schedule:schedule)');
+      return this.router.navigateByUrl('/app/tabs/schedule');
     });
   }
 
   openTutorial() {
     this.menu.enable(false);
-    this.storage.set('ion_did_tutorial', 'false');
+    this.storage.set('ion_did_tutorial', false);
     this.router.navigateByUrl('/tutorial');
   }
 }

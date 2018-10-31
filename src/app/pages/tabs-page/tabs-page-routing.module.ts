@@ -1,14 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
 import { TabsPage } from './tabs-page';
-
-import { AboutPage } from '../about/about';
-import { MapPage } from '../map/map';
 import { SchedulePage } from '../schedule/schedule';
-import { SessionDetailPage } from '../session-detail/session-detail';
-import { SpeakerDetailPage } from '../speaker-detail/speaker-detail';
-import { SpeakerListPage } from '../speaker-list/speaker-list';
 
 
 const routes: Routes = [
@@ -16,44 +9,58 @@ const routes: Routes = [
     path: 'tabs',
     component: TabsPage,
     children: [
-      // tab one
       {
         path: 'schedule',
-        component: SchedulePage,
-        outlet: 'schedule'
+        children: [
+          {
+            path: '',
+            component: SchedulePage,
+          },
+          {
+            path: 'session/:sessionId',
+            loadChildren: () => import('../session-detail/session-detail.module').then(m => m.SessionDetailModule)
+          }
+        ]
       },
-      {
-        path: 'session/:sessionId',
-        component: SessionDetailPage,
-        outlet: 'schedule'
-      },
-      // tab two
       {
         path: 'speakers',
-        component: SpeakerListPage,
-        outlet: 'speakers'
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../speaker-list/speaker-list.module').then(m => m.SpeakerListModule)
+          },
+          {
+            path: 'session/:sessionId',
+            loadChildren: () => import('../session-detail/session-detail.module').then(m => m.SessionDetailModule)
+          },
+          {
+            path: 'speaker-details/:speakerId',
+            loadChildren: () => import('../speaker-detail/speaker-detail.module').then(m => m.SpeakerDetailModule)
+          }
+        ]
       },
-      {
-        path: 'session/:sessionId',
-        component: SessionDetailPage,
-        outlet: 'speakers'
-      },
-      {
-        path: 'speaker-details/:speakerId',
-        component: SpeakerDetailPage,
-        outlet: 'speakers'
-      },
-      // tab three
       {
         path: 'map',
-        component: MapPage,
-        outlet: 'map'
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../map/map.module').then(m => m.MapModule)
+          }
+        ]
       },
-      // tab four
       {
         path: 'about',
-        component: AboutPage,
-        outlet: 'about'
+        children: [
+          {
+            path: '',
+            loadChildren: () => import('../about/about.module').then(m => m.AboutModule)
+          }
+        ]
+      },
+      {
+        path: '',
+        redirectTo: '/app/tabs/schedule',
+        pathMatch: 'full'
       }
     ]
   }
@@ -64,3 +71,4 @@ const routes: Routes = [
   exports: [RouterModule]
 })
 export class TabsPageRoutingModule { }
+

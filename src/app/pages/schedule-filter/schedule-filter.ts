@@ -1,5 +1,5 @@
-import { AfterViewInit, Component, ViewEncapsulation } from '@angular/core';
-import { ModalController } from '@ionic/angular';
+import { Component } from '@angular/core';
+import { Config, ModalController, NavParams } from '@ionic/angular';
 
 import { ConferenceData } from '../../providers/conference-data';
 
@@ -8,36 +8,40 @@ import { ConferenceData } from '../../providers/conference-data';
   selector: 'page-schedule-filter',
   templateUrl: 'schedule-filter.html',
   styleUrls: ['./schedule-filter.scss'],
-  encapsulation: ViewEncapsulation.None
 })
-export class ScheduleFilterPage implements AfterViewInit {
+export class ScheduleFilterPage {
+  ios: boolean;
 
-  tracks: {name: string, isChecked: boolean}[] = [];
+  tracks: {name: string, icon: string, isChecked: boolean}[] = [];
 
   constructor(
     public confData: ConferenceData,
-    public modalCtrl: ModalController
+    private config: Config,
+    public modalCtrl: ModalController,
+    public navParams: NavParams
   ) { }
 
-  // TODO use the ionViewDidEnter event
-  ngAfterViewInit() {
-    // passed in array of track names that should be excluded (unchecked)
-    const excludedTrackNames = []; // this.navParams.data.excludedTracks;
+  ionViewWillEnter() {
+    this.ios = this.config.get('mode') === `ios`;
 
-    this.confData.getTracks().subscribe((trackNames: string[]) => {
-      trackNames.forEach(trackName => {
+    // passed in array of track names that should be excluded (unchecked)
+    const excludedTrackNames = this.navParams.get('excludedTracks');
+
+    this.confData.getTracks().subscribe((tracks: any[]) => {
+      tracks.forEach(track => {
         this.tracks.push({
-          name: trackName,
-          isChecked: (excludedTrackNames.indexOf(trackName) === -1)
+          name: track.name,
+          icon: track.icon,
+          isChecked: (excludedTrackNames.indexOf(track.name) === -1)
         });
       });
     });
   }
 
-  resetFilters() {
-    // reset all of the toggles to be checked
+  selectAll(check: boolean) {
+    // set all to checked or unchecked
     this.tracks.forEach(track => {
-      track.isChecked = true;
+      track.isChecked = check;
     });
   }
 

@@ -11,7 +11,7 @@
  * automatically update themselves. This includes Safari >= 10, Chrome >= 55 (including Opera),
  * Edge >= 13 on the desktop, and iOS 10 and Chrome on mobile.
  *
- * Learn more in https://angular.io/docs/ts/latest/guide/browser-support.html
+ * Learn more in https://angular.io/guide/browser-support
  */
 
 // BROWSER POLYFILLS
@@ -41,7 +41,7 @@
 
 // Evergreen browsers require these.
 // Used for reflect-metadata in JIT. If you use AOT (and only Angular decorators), you can remove.
-import 'core-js/es7/reflect';
+
 
 // Required to support Web Animations `@angular/platform-browser/animations`.
 // Needed for: All but Chrome, Firefox and Opera. https://caniuse.com/#feat=web-animation
